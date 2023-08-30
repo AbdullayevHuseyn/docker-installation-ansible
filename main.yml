@@ -3,7 +3,6 @@
   hosts: all
   vars_files:
     - ./vault.yaml
-    - ./group_vars/ubuntu_nodes.yaml
   tasks:
     - name: Remove existing Docker packages
       ansible.builtin.apt:
