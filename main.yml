@@ -15,7 +15,7 @@
       ansible.builtin.apt:
         update_cache: yes
     - name: Install necessary packages
-      apt:
+      ansible.builtin.apt:
         name: "{{ item }}"
         state: present
       loop: "{{ packages_repo }}"
@@ -44,7 +44,7 @@
         state: present
       loop: "{{ packages_docker_post }}"
     - name: Ensure service is up
-      service:
+      ansible.builtin.service:
         name: docker
         state: started
     - name: Add user to Docker group
