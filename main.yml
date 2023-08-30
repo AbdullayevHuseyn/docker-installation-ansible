@@ -1,0 +1,57 @@
+- name: Docker installation on Nodes
+  become: true
+  hosts: all
+  vars_files:
+    - ./vault.yaml
+    - ./group_vars/ubuntu_nodes.yaml
+  tasks:
+    - name: Remove existing Docker packages
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: absent
+        purge: yes
+        autoremove: yes
+      loop: "{{ packages_docker_pre }}"
+    - name: Update the repositories
+      ansible.builtin.apt:
+        update_cache: yes
+    - name: Install necessary packages
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ packages_repo }}"
+    - name: Create keyrings directory
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+    - name: Download Docker GPG key
+      ansible.builtin.apt_key:
+        url: "https://download.docker.com/linux/ubuntu/gpg"
+        state: present
+        keyring: /etc/apt/keyrings/docker.gpg
+    - name: Set proper permissions on Docker GPG file
+      ansible.builtin.file:
+        path: /etc/apt/keyrings/docker.gpg
+        mode: a+r
+    - name: Set up the repository
+      ansible.builtin.shell: echo "deb [arch=\"$(dpkg --print-architecture)\" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \"$(. /etc/os-release && echo \"$VERSION_CODENAME\")\" stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+    - name: Update the repositories
+      ansible.builtin.apt:
+        update_cache: yes
+    - name: Install Docker packages
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ packages_docker_post }}"
+    - name: Ensure service is up
+      service:
+        name: docker
+        state: started
+    - name: Add user to Docker group
+      ansible.builtin.user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+
+

@@ -1,0 +1,18 @@
+ansible_user: ubuntu
+packages_docker_pre:
+  - docker
+  - docker-engine
+  - docker.io
+  - containerd
+  - runc
+packages_repo:
+  - ca-certificates
+  - curl
+  - gnupg
+packages_docker_post:
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io
+  - docker-buildx-plugin
+  - docker-compose-plugin
+
